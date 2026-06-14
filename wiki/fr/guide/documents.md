@@ -5,8 +5,12 @@
 ```php
 use function oihana\masking\maskDocument;
 
-maskDocument( array $doc , array $maskings ) : array
+maskDocument( array $doc , array $maskings , array $protectedAttributes = [] ) : array
 ```
+
+- `$doc` — le document à masquer ;
+- `$maskings` — la liste des règles (voir ci-dessous) ;
+- `$protectedAttributes` — les noms d'attributs de premier niveau à **ne jamais** masquer (défaut : aucun). Voir [Attributs protégés](#attributs-protégés).
 
 Chaque règle est un tableau :
 
@@ -17,6 +21,8 @@ Chaque règle est un tableau :
 - `path` — *quelles* feuilles masquer (voir le [DSL de chemins](#le-dsl-de-chemins) ci-dessous) ;
 - `type` — *comment* les masquer (un nom de masker ; voir le [catalogue](maskers.md)) ;
 - toute clé supplémentaire est transmise au masker comme paramètre (`unmaskedLength`, `lower`, `format`, …).
+
+> Quand vous construisez les règles en PHP plutôt que de les charger depuis du TOML/JSON, les clés sont aussi disponibles en constantes — `MaskingRule::PATH` / `MaskingRule::TYPE` et les clés d'options sur `MaskingOption` (`UNMASKED_LENGTH`, `LOWER`, `FORMAT`, …) — pour éviter les *chaînes magiques*.
 
 ## Un premier exemple
 
@@ -80,8 +86,9 @@ maskDocument( $doc , [ [ 'path' => '.name' , 'type' => 'xifyFront' , 'unmaskedLe
 
 ```php
 $doc = [ '_key' => 'k' , 'n' => 5 , 'arr' => [ 1 , 2 ] , 'o' => [ 'x' => 9 ] ];
-maskDocument( $doc , [ [ 'path' => '*' , 'type' => 'integer' , 'lower' => 0 , 'upper' => 0 ] ]);
-// chaque feuille devient 0 — sauf l'attribut système _key, qui est préservé.
+maskDocument( $doc , [ [ 'path' => '*' , 'type' => 'integer' , 'lower' => 0 , 'upper' => 0 ] ] , [ '_key' ] );
+// chaque feuille devient 0 — sauf _key, qui figure dans les attributs protégés.
+// (sans ce 3ᵉ argument, _key serait masqué aussi — rien n'est protégé par défaut.)
 ```
 
 ### Clé littérale entre accents graves
@@ -108,17 +115,28 @@ maskDocument( $doc,
 // address -> "xxxxxxxet" (xifyFront), pas une adresse e-mail.
 ```
 
-## Attributs système protégés
+## Attributs protégés
 
-Les **attributs système** de premier niveau — `_key`, `_id`, `_rev`, `_from`, `_to` — ne sont **jamais** masqués, même par une règle `*`. Ils portent l'identité du document et les références d'arêtes, et doivent survivre intacts. La liste est fournie par [`maskingSystemAttributes()`](../../../src/oihana/masking/maskingSystemAttributes.php) :
+Le 3ᵉ argument, `$protectedAttributes`, liste les noms d'attributs de premier niveau à **ne jamais** masquer — pas même par une règle `*`. Utilisez-le pour préserver les champs d'identité (clé primaire, identifiant de locataire, …).
+
+**Le moteur est agnostique de la base : par défaut rien n'est protégé** (`$protectedAttributes = []`), et **aucun nom de champ n'est codé en dur**. Vous fournissez les champs d'identité de votre propre modèle :
 
 ```php
-use function oihana\masking\maskingSystemAttributes;
+use function oihana\masking\maskDocument;
 
-maskingSystemAttributes(); // [ '_key' , '_id' , '_rev' , '_from' , '_to' ]
+// Document store façon ArangoDB :
+maskDocument( $doc , $rules , [ '_key' , '_id' , '_rev' , '_from' , '_to' ] );
+
+// MongoDB — protéger seulement _id :
+maskDocument( $doc , $rules , [ '_id' ] );
+
+// Votre propre modèle — protéger ce qui identifie un enregistrement :
+maskDocument( $doc , $rules , [ 'id' , 'uuid' , 'tenant' ] );
 ```
 
-> La protection s'applique **au premier niveau uniquement** — un attribut imbriqué qui s'appellerait `_key` *est*, lui, éligible au masquage.
+> Définissez cette liste une fois dans une constante de votre projet et réutilisez-la, pour que les noms de champs vivent à un seul endroit.
+
+> La protection s'applique **au premier niveau uniquement** — un attribut imbriqué qui porterait un nom protégé *est*, lui, éligible au masquage.
 
 ## Une règle sans `type` lève une exception
 

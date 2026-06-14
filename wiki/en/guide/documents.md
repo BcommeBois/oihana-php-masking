@@ -5,8 +5,12 @@
 ```php
 use function oihana\masking\maskDocument;
 
-maskDocument( array $doc , array $maskings ) : array
+maskDocument( array $doc , array $maskings , array $protectedAttributes = [] ) : array
 ```
+
+- `$doc` — the document to mask;
+- `$maskings` — the list of rules (see below);
+- `$protectedAttributes` — top-level attribute names that must **never** be masked (default: none). See [Protected attributes](#protected-attributes).
 
 Each rule is an array:
 
@@ -17,6 +21,8 @@ Each rule is an array:
 - `path` — *which* leaves to mask (see the [path DSL](#the-path-dsl) below);
 - `type` — *how* to mask them (a masker name; see the [catalogue](maskers.md));
 - any extra keys are passed to the masker as parameters (`unmaskedLength`, `lower`, `format`, …).
+
+> When you build rules in PHP rather than load them from TOML/JSON, the keys are also available as constants — `MaskingRule::PATH` / `MaskingRule::TYPE` and the option keys on `MaskingOption` (`UNMASKED_LENGTH`, `LOWER`, `FORMAT`, …) — so you can avoid *magic strings*.
 
 ## A first example
 
@@ -80,8 +86,9 @@ maskDocument( $doc , [ [ 'path' => '.name' , 'type' => 'xifyFront' , 'unmaskedLe
 
 ```php
 $doc = [ '_key' => 'k' , 'n' => 5 , 'arr' => [ 1 , 2 ] , 'o' => [ 'x' => 9 ] ];
-maskDocument( $doc , [ [ 'path' => '*' , 'type' => 'integer' , 'lower' => 0 , 'upper' => 0 ] ]);
-// every leaf becomes 0 — except the system attribute _key, which is preserved.
+maskDocument( $doc , [ [ 'path' => '*' , 'type' => 'integer' , 'lower' => 0 , 'upper' => 0 ] ] , [ '_key' ] );
+// every leaf becomes 0 — except _key, which is listed in the protected attributes.
+// (without that third argument, _key would be masked too — nothing is protected by default.)
 ```
 
 ### Backtick-quoted literal key
@@ -108,17 +115,28 @@ maskDocument( $doc,
 // address -> "xxxxxxxet" (xifyFront), not an email.
 ```
 
-## Protected system attributes
+## Protected attributes
 
-The top-level **system attributes** — `_key`, `_id`, `_rev`, `_from`, `_to` — are **never** masked, even by a `*` rule. They carry document identity and edge references and must survive untouched. The list is provided by [`maskingSystemAttributes()`](../../../src/oihana/masking/maskingSystemAttributes.php):
+The third argument, `$protectedAttributes`, lists the top-level attribute names that must **never** be masked — not even by a `*` rule. Use it to preserve identity fields (a primary key, a tenant id, …).
+
+**The engine is data-store agnostic: by default nothing is protected** (`$protectedAttributes = []`), and **no field name is hardcoded**. You supply the identity fields of your own model:
 
 ```php
-use function oihana\masking\maskingSystemAttributes;
+use function oihana\masking\maskDocument;
 
-maskingSystemAttributes(); // [ '_key' , '_id' , '_rev' , '_from' , '_to' ]
+// ArangoDB-style document store:
+maskDocument( $doc , $rules , [ '_key' , '_id' , '_rev' , '_from' , '_to' ] );
+
+// MongoDB — protect _id only:
+maskDocument( $doc , $rules , [ '_id' ] );
+
+// Your own model — protect whatever identifies a record:
+maskDocument( $doc , $rules , [ 'id' , 'uuid' , 'tenant' ] );
 ```
 
-> The protection applies at the **top level only** — a nested attribute that happens to be called `_key` *is* eligible for masking.
+> Define that list once as a constant in your own project and reuse it, so the field names live in a single place.
+
+> Protection applies at the **top level only** — a nested attribute that happens to share a protected name *is* eligible for masking.
 
 ## A rule without a `type` throws
 

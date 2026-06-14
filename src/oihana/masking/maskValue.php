@@ -6,6 +6,7 @@ use InvalidArgumentException;
 use Random\RandomException;
 
 use oihana\masking\enums\Masker;
+use oihana\masking\enums\MaskingOption;
 
 /**
  * Applies a single masker to a value.
@@ -54,15 +55,15 @@ function maskValue( string $type , mixed $value , array $params = [] ) :mixed
     return match( $type )
     {
         Masker::CREDIT_CARD   => maskCreditCard( $value ) ,
-        Masker::DATETIME      => maskDatetime( $value , $params[ 'begin' ] ?? '1970-01-01T00:00:00.000' , $params[ 'end' ] ?? '' , $params[ 'format' ] ?? '' ) ,
-        Masker::DECIMAL       => maskDecimal( $value , (float) ( $params[ 'lower' ] ?? -1 ) , (float) ( $params[ 'upper' ] ?? 1 ) , (int) ( $params[ 'scale' ] ?? 2 ) ) ,
+        Masker::DATETIME      => maskDatetime( $value , $params[ MaskingOption::BEGIN ] ?? '1970-01-01T00:00:00.000' , $params[ MaskingOption::END ] ?? '' , $params[ MaskingOption::FORMAT ] ?? '' ) ,
+        Masker::DECIMAL       => maskDecimal( $value , (float) ( $params[ MaskingOption::LOWER ] ?? -1 ) , (float) ( $params[ MaskingOption::UPPER ] ?? 1 ) , (int) ( $params[ MaskingOption::SCALE ] ?? 2 ) ) ,
         Masker::EMAIL         => maskEmail( $value ) ,
-        Masker::INTEGER       => maskInteger( $value , (int) ( $params[ 'lower' ] ?? -100 ) , (int) ( $params[ 'upper' ] ?? 100 ) ) ,
-        Masker::PHONE         => maskPhone( $value , (string) ( $params[ 'default' ] ?? '+1234567890' ) ) ,
+        Masker::INTEGER       => maskInteger( $value , (int) ( $params[ MaskingOption::LOWER ] ?? -100 ) , (int) ( $params[ MaskingOption::UPPER ] ?? 100 ) ) ,
+        Masker::PHONE         => maskPhone( $value , (string) ( $params[ MaskingOption::DEFAULT ] ?? '+1234567890' ) ) ,
         Masker::RANDOM        => maskRandom( $value ) ,
         Masker::RANDOM_STRING => maskRandomString( $value ) ,
-        Masker::XIFY_FRONT    => maskXifyFront( $value , (int) ( $params[ 'unmaskedLength' ] ?? 2 ) , (bool) ( $params[ 'hash' ] ?? false ) , (int) ( $params[ 'seed' ] ?? 0 ) ) ,
-        Masker::ZIP           => maskZip( $value , (string) ( $params[ 'default' ] ?? '12345' ) ) ,
+        Masker::XIFY_FRONT    => maskXifyFront( $value , (int) ( $params[ MaskingOption::UNMASKED_LENGTH ] ?? 2 ) , (bool) ( $params[ MaskingOption::HASH ] ?? false ) , (int) ( $params[ MaskingOption::SEED ] ?? 0 ) ) ,
+        Masker::ZIP           => maskZip( $value , (string) ( $params[ MaskingOption::DEFAULT ] ?? '12345' ) ) ,
         default               => throw new InvalidArgumentException( sprintf( "Unknown masker '%s'. Valid maskers: %s." , $type , implode( ', ' , Masker::getAll() ) ) ) ,
     } ;
 }

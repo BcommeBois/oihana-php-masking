@@ -25,7 +25,7 @@ Auto-generated API reference (phpDocumentor):
 - 🎭 **10 composable maskers** — `email`, `phone`, `creditCard` (Luhn-valid), `datetime`, `decimal`, `integer`, `zip`, `random`, `randomString`, `xifyFront`.
 - 🗂️ **Document engine** — apply a list of path-based rules to a whole document, descending into nested objects and arrays.
 - 🧭 **Expressive path DSL** — target a leaf by name, exact dotted path, name-at-any-depth (`.name`), wildcard (`*`) or a backtick-quoted literal key.
-- 🛡️ **Identity-safe by default** — top-level system attributes (`_key`, `_id`, `_rev`, `_from`, `_to`) are never masked.
+- 🛡️ **Identity-safe, your way** — pass the attributes to protect from masking; fully data-store agnostic (no field name is hardcoded).
 - 🧱 **Standalone functions, no framework** — autoloaded via `composer.autoload.files`, strongly-typed enums instead of *magic strings*.
 - 🧪 **100% unit-tested**.
 
@@ -71,7 +71,9 @@ $rules =
     [ 'path' => '.address'      , 'type' => 'randomString' ],
 ];
 
-$masked = maskDocument( $document , $rules );
+// The 3rd argument lists the attributes to keep, so `_key` survives.
+// By default nothing is protected (the engine is data-store agnostic).
+$masked = maskDocument( $document , $rules , [ '_key' ] );
 // _key stays '42'; name -> "xxxx xxe", email -> "aZ12.bY34@cX56.invalid", etc.
 ```
 

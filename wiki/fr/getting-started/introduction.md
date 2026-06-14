@@ -40,7 +40,7 @@ Quelques termes reviennent tout au long de cette documentation :
 - **Règle** — un tableau `{ 'path' => …, 'type' => <masker>, …paramètres }` qui indique *quelles* feuilles masquer et *comment*.
 - **Feuille** — une valeur qui est `null`, un scalaire ou un tableau JSON. Les objets (tableaux associatifs) sont parcourus en profondeur, pas masqués directement.
 - **Chemin (`path`)** — le localisateur dans une règle. Les formes acceptées (exact, nom à n'importe quelle profondeur, joker, littéral entre accents graves) forment le **DSL de chemins** — voir [Masquer un document](../guide/documents.md).
-- **Attributs système** — les champs d'identité de premier niveau (`_key`, `_id`, `_rev`, `_from`, `_to`) qui ne sont **jamais** masqués.
+- **Attributs protégés** — les noms d'attributs de premier niveau que vous demandez au moteur de ne jamais masquer (défaut : aucun). Vous fournissez les champs d'identité de votre propre modèle (p. ex. `['_key', '_id', ...]` pour ArangoDB, `['_id']` pour MongoDB) — la bibliothèque ne code rien en dur.
 
 ## Public et prérequis
 

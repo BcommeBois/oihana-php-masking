@@ -12,7 +12,6 @@ use function oihana\masking\maskDecimal;
 use function oihana\masking\maskDocument;
 use function oihana\masking\maskDocumentList;
 use function oihana\masking\maskDocumentNode;
-use function oihana\masking\maskingSystemAttributes;
 use function oihana\masking\resolveMaskingRule;
 use function oihana\masking\maskEmail;
 use function oihana\masking\maskInteger;
@@ -296,7 +295,7 @@ class MaskingsTest extends TestCase
 
         $out = maskDocument( $doc , [ [ 'path' => '.name' , 'type' => 'xifyFront' , 'unmaskedLength' => 2 ] ] ) ;
 
-        $this->assertSame( 'a' , $out[ '_key' ] ) ;                 // system attr untouched
+        $this->assertSame( 'a' , $out[ '_key' ] ) ;                 // no rule matches _key (the `.name` rule misses it)
         $this->assertSame( 'xxxxxxme' , $out[ 'name' ] ) ;
         $this->assertSame( 'xxgo' , $out[ 'nicknames' ][ 0 ][ 'name' ] ) ;
         $this->assertSame( 'egon' , $out[ 'nicknames' ][ 1 ] ) ;   // bare array scalar untouched
@@ -313,16 +312,40 @@ class MaskingsTest extends TestCase
         $this->assertSame( 'kepterm' , $out[ 'other' ][ 'name' ] ) ; // exact path does not match nested elsewhere
     }
 
-    public function testMaskDocumentWildcardMasksEveryLeafButSystem() :void
+    public function testMaskDocumentWildcardMasksEveryLeafButProtected() :void
     {
-        $doc = [ '_key' => 'k' , '_rev' => 'r' , 'n' => 5 , 'arr' => [ 1 , 2 ] , 'o' => [ 'x' => 9 ] ] ;
-        $out = maskDocument( $doc , [ [ 'path' => '*' , 'type' => 'integer' , 'lower' => 0 , 'upper' => 0 ] ] ) ;
+        $doc  = [ '_key' => 'k' , '_rev' => 'r' , 'n' => 5 , 'arr' => [ 1 , 2 ] , 'o' => [ 'x' => 9 ] ] ;
+        $rule = [ [ 'path' => '*' , 'type' => 'integer' , 'lower' => 0 , 'upper' => 0 ] ] ;
 
+        // The caller-provided protected list survives the wildcard.
+        $out = maskDocument( $doc , $rule , [ '_key' , '_rev' ] ) ;
         $this->assertSame( 'k' , $out[ '_key' ] ) ;
         $this->assertSame( 'r' , $out[ '_rev' ] ) ;
         $this->assertSame( 0 , $out[ 'n' ] ) ;
         $this->assertSame( [ 0 , 0 ] , $out[ 'arr' ] ) ;
         $this->assertSame( 0 , $out[ 'o' ][ 'x' ] ) ;
+    }
+
+    public function testMaskDocumentProtectsNothingByDefault() :void
+    {
+        // No protected list -> the wildcard masks every top-level leaf, system fields included.
+        $doc = [ '_key' => 'k' , '_rev' => 'r' , 'n' => 5 ] ;
+        $out = maskDocument( $doc , [ [ 'path' => '*' , 'type' => 'integer' , 'lower' => 0 , 'upper' => 0 ] ] ) ;
+
+        $this->assertSame( 0 , $out[ '_key' ] ) ;
+        $this->assertSame( 0 , $out[ '_rev' ] ) ;
+        $this->assertSame( 0 , $out[ 'n' ] ) ;
+    }
+
+    public function testMaskDocumentProtectsCustomAttributes() :void
+    {
+        // A non-ArangoDB model can protect its own identity fields.
+        $doc = [ 'id' => 7 , '_key' => 'k' , 'amount' => 5 ] ;
+        $out = maskDocument( $doc , [ [ 'path' => '*' , 'type' => 'integer' , 'lower' => 0 , 'upper' => 0 ] ] , [ 'id' ] ) ;
+
+        $this->assertSame( 7 , $out[ 'id' ] ) ;     // protected
+        $this->assertSame( 0 , $out[ '_key' ] ) ;   // NOT protected here (not in the custom list)
+        $this->assertSame( 0 , $out[ 'amount' ] ) ;
     }
 
     public function testMaskDocumentFirstMatchingRuleWins() :void
@@ -380,11 +403,6 @@ class MaskingsTest extends TestCase
 
     // ------------------------------------------------------------------ extracted helpers (standalone)
 
-    public function testMaskingSystemAttributes() :void
-    {
-        $this->assertSame( [ '_key' , '_id' , '_rev' , '_from' , '_to' ] , maskingSystemAttributes() ) ;
-    }
-
     public function testResolveMaskingRuleStandalone() :void
     {
         $rules = [ [ 'path' => 'person.name' , 'type' => 'xifyFront' ] ] ;
@@ -407,12 +425,14 @@ class MaskingsTest extends TestCase
 
     public function testMaskDocumentNodeStandalone() :void
     {
+        // A protected attribute survives even a wildcard rule at depth 0.
         $out = maskDocumentNode
         (
             [ '_key' => 'a' , 'email' => 'real@example.com' ] ,
-            [ [ 'path' => 'email' , 'type' => 'email' ] ] ,
+            [ [ 'path' => '*' , 'type' => 'email' ] ] ,
             '' ,
             0 ,
+            [ '_key' ] ,
         ) ;
 
         $this->assertSame( 'a' , $out[ '_key' ] ) ;

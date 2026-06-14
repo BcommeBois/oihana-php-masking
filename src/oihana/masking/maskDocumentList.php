@@ -16,7 +16,8 @@ use Random\RandomException;
  *
  * @param array $list     The list to walk.
  * @param array $maskings The list of rules for this collection.
- * @param int   $depth    The current depth (system attributes are top-level only).
+ * @param int   $depth    The current depth (protected attributes are top-level only).
+ * @param array<int,string> $protectedAttributes Top-level attribute names never masked. Default: none.
  * @return array The masked list.
  *
  * @throws InvalidArgumentException When a rule has no `type`, or an unknown masker.
@@ -35,12 +36,17 @@ use Random\RandomException;
  * @since 1.0.0
  * @author Marc Alcaraz
  */
-function maskDocumentList( array $list , array $maskings , int $depth ) :array
+function maskDocumentList( array $list , array $maskings , int $depth , array $protectedAttributes = [] ) :array
 {
     return array_map
     (
         static fn( $element ) => is_array( $element )
-            ? ( array_is_list( $element ) ? maskDocumentList( $element , $maskings , $depth ) : maskDocumentNode( $element , $maskings , null , $depth ) )
+            ?
+            (
+                array_is_list( $element )
+                    ? maskDocumentList( $element , $maskings , $depth , $protectedAttributes )
+                    : maskDocumentNode( $element , $maskings , null , $depth , $protectedAttributes )
+            )
             : $element ,
         $list ,
     ) ;

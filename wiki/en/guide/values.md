@@ -67,7 +67,7 @@ maskValue( 'nope' , 'x' );
 | Use… | When… |
 |---|---|
 | `maskValue()` | you already have the exact value(s) to mask and decide *which* masker yourself. |
-| [`maskDocument()`](documents.md) | you have a whole document and want **path-based rules** to select the leaves, descend into nested objects/arrays, and protect system attributes automatically. |
+| [`maskDocument()`](documents.md) | you have a whole document and want **path-based rules** to select the leaves, descend into nested objects/arrays, and protect the attributes you choose. |
 
 ## What's next?
 

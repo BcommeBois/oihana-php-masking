@@ -52,7 +52,6 @@
             "src/oihana/masking/maskValue.php",
             "src/oihana/masking/maskXifyFront.php",
             "src/oihana/masking/maskZip.php",
-            "src/oihana/masking/maskingSystemAttributes.php",
             "src/oihana/masking/randomAlphaNumeric.php",
             "src/oihana/masking/resolveMaskingRule.php"
         ]

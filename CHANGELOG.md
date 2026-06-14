@@ -33,10 +33,16 @@ own standalone package.
   each element of a JSON array individually).
 - **Path DSL** via `resolveMaskingRule()`: leaf name, exact dotted path,
   name-at-any-depth (`.name`), wildcard (`*`) and backtick-quoted literal keys.
-- **Identity safety**: `maskingSystemAttributes()` lists the top-level system
-  attributes (`_key`, `_id`, `_rev`, `_from`, `_to`) that are never masked.
-- **Enums**: `Masker` (the masker names) and `MaskingMode` (the per-collection
-  modes: `exclude`, `structure`, `masked`, `full`).
+- **Identity safety**: `maskDocument()`, `maskDocumentNode()` and
+  `maskDocumentList()` accept a `$protectedAttributes` argument — the top-level
+  attribute names never masked. It defaults to an empty list and **no field name
+  is hardcoded**, so the engine is fully data-store agnostic; the caller supplies
+  the identity fields of its own model (e.g. `['_key','_id',…]` for ArangoDB).
+- **Enums**: `Masker` (the masker names), `MaskingMode` (the per-collection
+  modes: `exclude`, `structure`, `masked`, `full`), `MaskingRule` (the rule keys
+  `path`, `type`) and `MaskingOption` (the masker option keys: `begin`, `end`,
+  `format`, `lower`, `upper`, `scale`, `default`, `unmaskedLength`, `hash`,
+  `seed`) — no *magic strings* across the engine.
 - **Helper**: `randomAlphaNumeric()`.
 - Full unit-test suite (100% line coverage), CI and phpDocumentor workflows,
   bilingual (FR/EN) wiki.

@@ -34,7 +34,8 @@ $rules =
     [ 'path' => 'phone' , 'type' => 'phone' ],
 ];
 
-$masked = maskDocument( $document , $rules );
+// 3rd argument = attributes to keep. Default: nothing protected (data-store agnostic).
+$masked = maskDocument( $document , $rules , [ '_key' ] );
 // _key stays '42'; name -> "xxxx xxe"; email -> "aZ12.bY34@cX56.invalid"; phone -> same-shape random.
 ```
 
@@ -50,7 +51,7 @@ $masked = maskDocument( $document , $rules );
 
 - [The maskers catalogue](guide/maskers.md) — the 10 maskers (`email`, `phone`, `creditCard`, `datetime`, `decimal`, `integer`, `zip`, `random`, `randomString`, `xifyFront`), their parameters and output shape.
 - [Masking a single value](guide/values.md) — the `maskValue()` dispatcher and the per-array-element rule.
-- [Masking a document](guide/documents.md) — the `maskDocument()` engine, the **path DSL**, protected system attributes, rule precedence.
+- [Masking a document](guide/documents.md) — the `maskDocument()` engine, the **path DSL**, protected attributes, rule precedence.
 
 ### Cross-cutting
 

@@ -2,6 +2,8 @@
 
 namespace oihana\masking;
 
+use oihana\masking\enums\MaskingRule;
+
 /**
  * Returns the first masking rule (in declaration order) that targets a leaf.
  *
@@ -39,7 +41,7 @@ function resolveMaskingRule( array $maskings , string $key , ?string $exactPath 
 {
     foreach( $maskings as $rule )
     {
-        $path = (string) ( $rule[ 'path' ] ?? '' ) ;
+        $path = (string) ( $rule[ MaskingRule::PATH ] ?? '' ) ;
 
         if( $path === '*' )
         {

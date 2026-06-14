@@ -34,7 +34,8 @@ $rules =
     [ 'path' => 'phone' , 'type' => 'phone' ],
 ];
 
-$masked = maskDocument( $document , $rules );
+// 3ᵉ argument = attributs à conserver. Défaut : rien de protégé (agnostique de la base).
+$masked = maskDocument( $document , $rules , [ '_key' ] );
 // _key reste '42' ; name -> "xxxx xxe" ; email -> "aZ12.bY34@cX56.invalid" ; phone -> aléatoire de même forme.
 ```
 
@@ -50,7 +51,7 @@ $masked = maskDocument( $document , $rules );
 
 - [Le catalogue des maskers](guide/maskers.md) — les 10 maskers (`email`, `phone`, `creditCard`, `datetime`, `decimal`, `integer`, `zip`, `random`, `randomString`, `xifyFront`), leurs paramètres et la forme de sortie.
 - [Masquer une valeur](guide/values.md) — le répartiteur `maskValue()` et la règle « élément par élément ».
-- [Masquer un document](guide/documents.md) — le moteur `maskDocument()`, le **DSL de chemins**, les attributs système protégés, la priorité des règles.
+- [Masquer un document](guide/documents.md) — le moteur `maskDocument()`, le **DSL de chemins**, les attributs protégés, la priorité des règles.
 
 ### Transversal
 

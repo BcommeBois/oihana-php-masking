@@ -19,12 +19,19 @@ use Random\RandomException;
  *
  * A **leaf** is a value that is `null`, a scalar or a JSON array; objects are
  * descended into. When a matched leaf is an array, the masker is applied to its
- * elements individually (see {@see maskValue()}). The top-level **system
- * attributes** `_key`, `_id`, `_rev`, `_from`, `_to` are never masked. When
- * several rules match the same leaf, the **first one** in the list wins.
+ * elements individually (see {@see maskValue()}). When several rules match the
+ * same leaf, the **first one** in the list wins.
  *
- * @param array $doc      The document (decoded JSON object).
- * @param array $maskings The list of rules for this collection.
+ * The attributes named in `$protectedAttributes` are **never** masked at the
+ * **top level**, even by a `*` rule — use this to preserve identity fields. The
+ * default is an empty list (nothing protected), so the engine stays agnostic of
+ * any particular data store: supply the identity fields of your model yourself
+ * (e.g. `['_key','_id','_rev','_from','_to']` for ArangoDB, `['_id']` for
+ * MongoDB, `['id']` for a relational row).
+ *
+ * @param array         $doc                The document (decoded JSON object).
+ * @param array         $maskings           The list of rules for this collection.
+ * @param array<int,string> $protectedAttributes Top-level attribute names never masked. Default: none.
  * @return array The masked document.
  *
  * @throws InvalidArgumentException When a rule has no `type`, or an unknown masker.
@@ -35,20 +42,24 @@ use Random\RandomException;
  * use function oihana\masking\maskDocument;
  *
  * $doc = [ '_key' => 'a' , 'email' => 'real@example.com' , 'profile' => [ 'name' => 'Jane' ] ] ;
- * maskDocument( $doc , [ [ 'path' => 'email' , 'type' => 'email' ] , [ 'path' => '.name' , 'type' => 'xifyFront' ] ] ) ;
+ * $rules = [ [ 'path' => 'email' , 'type' => 'email' ] , [ 'path' => '.name' , 'type' => 'xifyFront' ] ] ;
+ *
+ * maskDocument( $doc , $rules , [ '_key' ] ) ; // keep _key
  * // [ '_key' => 'a' , 'email' => 'aZ12.bY34@cX56.invalid' , 'profile' => [ 'name' => 'xxne' ] ]
+ *
+ * maskDocument( $doc , $rules ) ; // nothing protected by default
  * ```
  *
  * @package oihana\masking
  * @since 1.0.0
  * @author Marc Alcaraz
  */
-function maskDocument( array $doc , array $maskings ) :array
+function maskDocument( array $doc , array $maskings , array $protectedAttributes = [] ) :array
 {
     if( $maskings === [] )
     {
         return $doc ;
     }
 
-    return maskDocumentNode( $doc , $maskings , '' , 0 ) ;
+    return maskDocumentNode( $doc , $maskings , '' , 0 , $protectedAttributes ) ;
 }

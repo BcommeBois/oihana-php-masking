@@ -67,7 +67,7 @@ maskValue( 'nope' , 'x' );
 | Utilisez… | Quand… |
 |---|---|
 | `maskValue()` | vous avez déjà la ou les valeurs exactes à masquer et décidez vous-même *quel* masker appliquer. |
-| [`maskDocument()`](documents.md) | vous avez un document complet et voulez des **règles par chemin** pour sélectionner les feuilles, descendre dans les objets/tableaux imbriqués, et protéger automatiquement les attributs système. |
+| [`maskDocument()`](documents.md) | vous avez un document complet et voulez des **règles par chemin** pour sélectionner les feuilles, descendre dans les objets/tableaux imbriqués, et protéger les attributs de votre choix. |
 
 ## Et ensuite ?
 

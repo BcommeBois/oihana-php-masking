@@ -40,7 +40,7 @@ A handful of terms recur throughout this documentation:
 - **Rule** — a `{ 'path' => …, 'type' => <masker>, …params }` array that says *which* leaves to mask and *how*.
 - **Leaf** — a value that is `null`, a scalar or a JSON array. Objects (associative arrays) are descended into, not masked directly.
 - **Path** — the locator inside a rule. The supported forms (exact, name-at-any-depth, wildcard, quoted literal) make up the **path DSL** — see [Masking a document](../guide/documents.md).
-- **System attributes** — the top-level identity fields (`_key`, `_id`, `_rev`, `_from`, `_to`) that are **never** masked.
+- **Protected attributes** — top-level attribute names you tell the engine never to mask (default: none). You supply the identity fields of your own data model (e.g. `['_key', '_id', ...]` for ArangoDB, `['_id']` for MongoDB) — the library hardcodes nothing.
 
 ## Audience and prerequisites
 
