@@ -4,6 +4,20 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## [Unreleased]
+
+### Fixed
+
+- **CI / Docs**: the `Docs` workflow now self-provisions GitHub Pages
+  (`enablement: true` on `actions/configure-pages`), fixing the
+  `Get Pages site failed — Not Found` error on deploy.
+
+### Changed
+
+- **CI / Docs**: bumped Pages action versions — `configure-pages` v5→v6,
+  `upload-pages-artifact` v3→v5, `deploy-pages` v4→v5 — clearing the
+  Node 20 deprecation warning.
+
 ## [1.0.0] - 2026-06-14
 
 Initial public release.
