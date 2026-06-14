@@ -1,0 +1,88 @@
+{
+    "name": "oihana/php-masking",
+    "type": "library",
+    "description": "Lightweight, framework-agnostic PHP data-masking toolkit: anonymize and redact document fields with composable maskers (email, phone, credit card, dates, ZIP, decimals, X-ify…) for dumps, fixtures and test data.",
+    "keywords": [
+        "php",
+        "data-masking",
+        "masking",
+        "anonymization",
+        "data-anonymization",
+        "redaction",
+        "gdpr",
+        "pii",
+        "fixtures"
+    ],
+    "homepage": "https://github.com/BcommeBois/oihana-php-masking",
+    "license": [
+        "MPL-2.0"
+    ],
+    "authors": [
+        {
+            "name": "Marc Alcaraz",
+            "email": "marc@ooop.fr",
+            "homepage": "https://www.ooop.fr",
+            "role": "Project Founder, Lead Developer."
+        }
+    ],
+    "support": {
+        "email": "marc@ooop.fr"
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "tests\\" : "tests"
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "oihana\\masking\\": "src/oihana/masking"
+        },
+        "files": [
+            "src/oihana/masking/maskCreditCard.php",
+            "src/oihana/masking/maskDatetime.php",
+            "src/oihana/masking/maskDecimal.php",
+            "src/oihana/masking/maskDocument.php",
+            "src/oihana/masking/maskDocumentList.php",
+            "src/oihana/masking/maskDocumentNode.php",
+            "src/oihana/masking/maskEmail.php",
+            "src/oihana/masking/maskInteger.php",
+            "src/oihana/masking/maskPhone.php",
+            "src/oihana/masking/maskRandom.php",
+            "src/oihana/masking/maskRandomString.php",
+            "src/oihana/masking/maskValue.php",
+            "src/oihana/masking/maskXifyFront.php",
+            "src/oihana/masking/maskZip.php",
+            "src/oihana/masking/maskingSystemAttributes.php",
+            "src/oihana/masking/randomAlphaNumeric.php",
+            "src/oihana/masking/resolveMaskingRule.php"
+        ]
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "require": {
+        "php": ">=8.4",
+        "ext-ctype": "*",
+        "oihana/php-reflect": "dev-main"
+    },
+    "scripts": {
+        "test": "./vendor/bin/phpunit",
+        "doc": "rm -rf docs && mkdir docs && ./vendor/bin/phpdoc -c phpdoc.xml -v",
+        "coverage": "XDEBUG_MODE=coverage ./vendor/bin/phpunit --coverage-text --coverage-clover build/coverage/clover.xml --coverage-html build/coverage/html",
+        "coverage:md": [
+            "@coverage",
+            "php tools/clover-to-markdown.php build/coverage/clover.xml build/coverage/COVERAGE.md"
+        ],
+        "post-install-cmd": [],
+        "post-update-cmd": []
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^12",
+        "nunomaduro/collision": "^8.8",
+        "phpdocumentor/shim": "^3.8"
+    },
+    "config": {
+        "allow-plugins": {
+            "phpdocumentor/shim": true
+        }
+    }
+}

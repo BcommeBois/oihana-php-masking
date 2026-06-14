@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/12.0/phpunit.xsd"
+    backupGlobals="false"
+    backupStaticProperties="false"
+    beStrictAboutTestsThatDoNotTestAnything="true"
+    beStrictAboutOutputDuringTests="true"
+    bootstrap="vendor/autoload.php"
+    cacheDirectory=".phpunit.cache"
+    cacheResult="false"
+    colors="true"
+    columns="max"
+    displayDetailsOnIncompleteTests="true"
+    displayDetailsOnSkippedTests="true"
+    displayDetailsOnTestsThatTriggerNotices="true"
+    displayDetailsOnTestsThatTriggerWarnings="true"
+    failOnEmptyTestSuite="true"
+    failOnIncomplete="true"
+    failOnRisky="true"
+    failOnSkipped="true"
+    failOnWarning="true"
+    processIsolation="false"
+    testdox="true"
+>
+    <testsuites>
+        <testsuite name="Application">
+            <directory>./tests</directory>
+        </testsuite>
+    </testsuites>
+
+    <source>
+        <include>
+            <directory suffix=".php">./src</directory>
+        </include>
+    </source>
+
+</phpunit>
