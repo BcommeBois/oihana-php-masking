@@ -75,7 +75,7 @@
         "post-update-cmd": []
     },
     "require-dev": {
-        "phpunit/phpunit": "^12",
+        "phpunit/phpunit": "^13",
         "nunomaduro/collision": "^8.8",
         "phpdocumentor/shim": "^3.8"
     },

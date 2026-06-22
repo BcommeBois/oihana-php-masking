@@ -11,12 +11,22 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/) and this p
 - **CI / Docs**: the `Docs` workflow now self-provisions GitHub Pages
   (`enablement: true` on `actions/configure-pages`), fixing the
   `Get Pages site failed — Not Found` error on deploy.
+- **Masking**: `maskDocumentList()` — rewrite the per-element mapper as an
+  explicitly-typed closure (`mixed $element): mixed`) instead of a nested
+  arrow-function ternary. Behaviour is unchanged, but it restores 100% line
+  coverage: `phpunit/php-code-coverage` 14 (pulled in by PHPUnit 13)
+  attributed the bare `?` / `(` / `)` tokens of the multi-line ternary to
+  standalone statements, lowering coverage to 98.34%.
 
 ### Changed
 
 - **CI / Docs**: bumped Pages action versions — `configure-pages` v5→v6,
   `upload-pages-artifact` v3→v5, `deploy-pages` v4→v5 — clearing the
   Node 20 deprecation warning.
+- **Tooling**: bump the `phpunit/phpunit` dev dependency from `^12` to `^13`
+  and update the `phpunit.xml` schema reference to `13.2`. The full suite
+  (40 tests) stays green at 100% line coverage. PHPUnit 13 requires PHP ≥ 8.4,
+  already the project's minimum.
 
 ## [1.0.0] - 2026-06-14
 

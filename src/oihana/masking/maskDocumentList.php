@@ -40,14 +40,17 @@ function maskDocumentList( array $list , array $maskings , int $depth , array $p
 {
     return array_map
     (
-        static fn( $element ) => is_array( $element )
-            ?
-            (
-                array_is_list( $element )
-                    ? maskDocumentList( $element , $maskings , $depth , $protectedAttributes )
-                    : maskDocumentNode( $element , $maskings , null , $depth , $protectedAttributes )
-            )
-            : $element ,
+        static function( mixed $element ) use ( $maskings , $depth , $protectedAttributes ): mixed
+        {
+            if ( !is_array( $element ) )
+            {
+                return $element ;
+            }
+
+            return array_is_list( $element )
+                 ? maskDocumentList( $element , $maskings , $depth , $protectedAttributes )
+                 : maskDocumentNode( $element , $maskings , null , $depth , $protectedAttributes ) ;
+        } ,
         $list ,
     ) ;
 }
